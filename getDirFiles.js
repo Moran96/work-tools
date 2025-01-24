@@ -1,4 +1,5 @@
 import fs from 'fs'
+import chalk from 'chalk'
 import { getUserInput } from './src/userInput.js'
 import { statistics } from './src/statistics.js'
 import { substringChinese } from './src/substringChinese.js'
@@ -34,35 +35,44 @@ function getFilesAndFoldersInDir (path) {
   return result
 }
 
-function test (p) {
-  statistics(p).then(map => {
-    const arr = []
-    map.forEach((value, key, map) => {
-      const format = substringChinese(value.trim())
-      // console.log(`${key + 1}\t ${value} \t ${format}`)
-      arr.push({
-        lineCode: key + 1,
-        content: format,
-        source: value.trim()
+function processFile (p) {
+  return new Promise((resolve, reject) => {
+    statistics(p).then(map => {
+      const arr = []
+      map.forEach((value, key, map) => {
+        const format = substringChinese(value.trim())
+        arr.push({
+          lineCode: key + 1,
+          content: format,
+          source: value.trim()
+        })
       })
-    })
 
-    console.log(`%c${p}`, 'color: red;')
-    console.table(arr)
-    if (!arr.length) {
-      console.log('Not matched lines.')
-      return
-    }
-    map.clear()
+      map.clear()
+      resolve(arr)
+    })
+  })
+}
+
+function processFiles (root, list) {
+  let index = 0
+  list.forEach((item) => {
+    processFile(item.path).then((arr) => {
+      ++index
+      const idxLabel = `  ${index}  `
+      const pathFromRoot = item.path.replace(root, '')
+
+      console.log(chalk.bgCyan.hex('#FFFFFF')(idxLabel), chalk.redBright(pathFromRoot))
+      console.table(arr)
+
+      if (!arr.length) {
+        console.log('Not matched lines.')
+      }
+    })
   })
 }
 
 getUserInput('Please input file path:\n', (p) => {
-  let list = getFilesAndFoldersInDir(p)
-  // console.log(list)
-  // console.log(listFile)
-  listFile.forEach(item => {
-    test(item.path)
-  })
+  getFilesAndFoldersInDir(p)
+  processFiles(p, listFile)
 })
-

@@ -38,7 +38,7 @@ export function statistics (filePath) {
       lineCode++
     })
     rl.on('close', () => {
-      console.log(`Matched ${count} lines, total ${lineCode}.`)
+      console.log('\n', `Matched ${count} lines, total ${lineCode}.`)
       resolve(map)
     })
   })

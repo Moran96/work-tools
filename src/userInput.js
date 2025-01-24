@@ -1,4 +1,5 @@
 import readline from 'readline'
+import chalk from 'chalk'
 
 export function getUserInput (msg, cb) {
   const q1 = readline.createInterface({
@@ -7,7 +8,7 @@ export function getUserInput (msg, cb) {
   })
 
   q1.question(msg, function (filePath) {
-    console.log(`Reading file: ${filePath}`)
+    console.log(chalk.bgCyan.hex('#FFFFFF')(filePath))
     // statistics(filePath)
     cb(filePath)
     q1.close()
